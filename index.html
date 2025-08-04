@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>簡易RPG</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="game-log-area">
+        <div id="game-area">
+          <div id="status">
+            <p>HP: <span id="hp">100</span></p>
+            <p>攻撃力: <span id="attack">10</span></p>
+            <p>レベル: <span id="level">1</span></p>
+          </div>
+          <div id="character">
+            <img id="character-image" src="image/yusha.png" alt="キャラクター">
+          </div>
+          <div id="controls">
+            <div id ="direction_">
+              <div id="direction">
+                <div id="up">⇧</div>
+                <div id="left">⇦</div>
+                <div id="right">⇨</div>
+                <div id="down">⇩</div>
+              </div>
+            </div>
+            <div id ="choice">
+              <button id ="Start-fighting">戦う</button>
+              <button id ="run-away">逃げる</button>
+            </div>
+          </div>
+        </div>
+        <div id="log">
+          <h3>ログ</h3>
+          <div id="log-content"></div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
