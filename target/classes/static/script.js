@@ -140,7 +140,7 @@ const monsterAttack = (monster) => {
 const startBattle = (monster) => {
   addLog(`${monster.name}と戦闘が始まりました！`);
   updateCharacterImage(monster.image); // 戦闘中はモンスター画像を表示
-  currentMonster(false)
+  toggleControls(false);
 };
 
 // ヒーローの攻撃処理
@@ -163,26 +163,50 @@ const attackMonster = () => {
   }
 };
 
-// エンカウント判定 (40%)
-const encounterMonster = () => {
-  const encounterChance = Math.random();
-  console.log(encounterChance);
-  if (encounterChance < APPEARANCE_RATE) {
-    currentMonster = chooseMonster(); // モンスターを選択
-    updateCharacterImage(currentMonster.image); // モンスター画像を表示
-    addLog(`${currentMonster.name} が現れた！`);
-    toggleControls(false); // モンスターがいるとき
-    startBattle(currentMonster); // 戦闘開始
-  } else {
-    addLog("何も見つかりませんでした。");
-    toggleControls(true); // 非戦闘状態
-    updateCharacterImage(hero.image); // ヒーロー画像を表示
+// エンカウント判定
+async function encounterMonster() {
+  try {
+    const res = await fetch('/api/encounter');
+    const data = await res.json();
+    if (data.appear) {
+      currentMonster = { 
+        name: data.monster.name,
+        hp: data.monster.hp,
+        attack: data.monster.attack,
+        exp: data.monster.exp,
+        image: data.monster.image
+      };
+      addLog(`${currentMonster.name} が現れた！`);
+      updateCharacterImage(currentMonster.image);
+      toggleControls(false);
+      startBattle(currentMonster);
+    } else {
+      addLog("何も見つかりませんでした。");
+      toggleControls(true);
+      updateCharacterImage(hero.image);
+    }
+  } catch (err) {
+    addLog(`出現判定エラー: ${err}`);
   }
-};
+}
 
 // 移動処理
 const moveHero = (direction) => {
   addLog(`${direction}方向に進みました。`);
+  
+  // 現在位置が取得できている場合、マップ上のポイントも移動
+  if (currentPosition && positionMarker && currentCircle) {
+    const newPosition = calculateNewPosition(currentPosition, direction);
+    currentPosition = newPosition;
+    
+    // マーカーと円の位置を更新
+    positionMarker.setLatLng(newPosition);
+    currentCircle.setLatLng(newPosition);
+    
+    // マップの中心も移動
+    map.setView(newPosition, 13);
+  }
+  
   encounterMonster();
 };
 
@@ -196,7 +220,7 @@ const tryToEscape = () => {
     currentMonster = null; // 現在のモンスターをリセット
   } else {
     addLog("逃げられませんでした！");
-    console.log(currentMonster)
+    console.log(currentMonster);
     monsterAttack(currentMonster); // モンスターが攻撃
   }
 };
@@ -239,8 +263,165 @@ const showGameOverPopup = () => {
   document.body.appendChild(popup);
 };
 
+// Leaflet 関連の変数
+let map;
+let currentPosition = null;
+let positionMarker = null;
+let currentCircle = null;
+
+// 移動距離の計算（緯度経度の差分）
+const calculateNewPosition = (currentPos, direction) => {
+  const latDiff = 0.001; // 約100メートル
+  const lngDiff = 0.001; // 約100メートル
+  
+  switch(direction) {
+    case "上":
+      return [currentPos[0] + latDiff, currentPos[1]];
+    case "下":
+      return [currentPos[0] - latDiff, currentPos[1]];
+    case "左":
+      return [currentPos[0], currentPos[1] - lngDiff];
+    case "右":
+      return [currentPos[0], currentPos[1] + lngDiff];
+    default:
+      return currentPos;
+  }
+};
+
+// Leaflet の初期化
+function initMap() {
+  // 東京駅の位置
+  const tokyoStationPosition = [35.6812, 139.7671];
+  
+  map = L.map('map', {
+    zoomControl: false, // ズームコントロールを無効化
+    scrollWheelZoom: false, // マウスホイールでのズームを無効化
+    doubleClickZoom: false, // ダブルクリックでのズームを無効化
+    boxZoom: false, // ボックスズームを無効化
+    keyboard: false, // キーボードでのズームを無効化
+    dragging: false, // ドラッグでの移動を無効化
+    touchZoom: false, // タッチでのズームを無効化
+    bounceAtZoomLimits: false // ズーム制限でのバウンスを無効化
+  }).setView(tokyoStationPosition, 13);
+
+  // 複数のタイルプロバイダーを試行
+  const tileProviders = [
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  ];
+
+  let tileLayerAdded = false;
+  
+  // タイルレイヤーを順番に試行
+  for (let i = 0; i < tileProviders.length && !tileLayerAdded; i++) {
+    try {
+      const tileLayer = L.tileLayer(tileProviders[i], {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        timeout: 5000
+      });
+      
+      tileLayer.on('load', function() {
+        console.log('タイルレイヤーが正常に読み込まれました:', tileProviders[i]);
+      });
+      
+      tileLayer.on('tileerror', function() {
+        console.log('タイルレイヤーエラー:', tileProviders[i]);
+      });
+      
+      tileLayer.addTo(map);
+      tileLayerAdded = true;
+    } catch (error) {
+      console.log('タイルレイヤーの追加に失敗:', tileProviders[i], error);
+    }
+  }
+
+  // タイルレイヤーが追加されなかった場合のフォールバック
+  if (!tileLayerAdded) {
+    console.log('すべてのタイルプロバイダーに失敗しました。シンプルな地図を表示します。');
+    // シンプルな背景色で地図エリアを表示
+    document.getElementById('map').style.backgroundColor = '#e0e0e0';
+    document.getElementById('map').innerHTML = '<div style="text-align: center; padding-top: 50px; color: #666;">地図を読み込めませんでした<br>東京駅周辺の地図</div>';
+  }
+
+  // 東京駅のマーカーと円を表示
+  const tokyoStationMarker = L.marker(tokyoStationPosition, {
+    title: "東京駅"
+  }).addTo(map);
+
+  const tokyoStationCircle = L.circle(tokyoStationPosition, {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.1,
+    radius: 500 // 500メートル
+  }).addTo(map);
+
+  // 現在位置を取得
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        currentPosition = [position.coords.latitude, position.coords.longitude];
+        
+        // 東京駅のマーカーと円を削除
+        map.removeLayer(tokyoStationMarker);
+        map.removeLayer(tokyoStationCircle);
+        
+        // マップの中心を現在位置に設定
+        map.setView(currentPosition, 13);
+        
+        // 現在位置のマーカーを追加
+        positionMarker = L.marker(currentPosition, {
+          title: "現在位置"
+        }).addTo(map);
+
+        // 500m四方の範囲を表示（円形）
+        currentCircle = L.circle(currentPosition, {
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.1,
+          radius: 500 // 500メートル
+        }).addTo(map);
+
+        addLog("現在位置を取得しました。");
+      },
+      (error) => {
+        console.error("位置情報の取得に失敗しました:", error);
+        addLog("位置情報の取得に失敗しました。東京駅を中心とした地図を表示しています。");
+        
+        // エラーメッセージに応じた説明を追加
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            addLog("位置情報の許可が拒否されました。東京駅周辺の地図を表示しています。");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            addLog("位置情報が利用できません。東京駅周辺の地図を表示しています。");
+            break;
+          case error.TIMEOUT:
+            addLog("位置情報の取得がタイムアウトしました。東京駅周辺の地図を表示しています。");
+            break;
+          default:
+            addLog("位置情報の取得でエラーが発生しました。東京駅周辺の地図を表示しています。");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  } else {
+    addLog("このブラウザは位置情報をサポートしていません。東京駅周辺の地図を表示しています。");
+  }
+}
+
 // イベントハンドラーの登録
-window.onload = () => resetGame();
+window.onload = () => {
+  resetGame();
+  initMap();
+};
 document.getElementById("up").addEventListener("click", () => moveHero("上"));
 document.getElementById("down").addEventListener("click", () => moveHero("下"));
 document.getElementById("left").addEventListener("click", () => moveHero("左"));

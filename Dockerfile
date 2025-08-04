@@ -1,22 +1,40 @@
-# Dockerfile
-# 1) Build stage using official Maven image
-FROM maven:3.8.5-openjdk-17 AS build
-WORKDIR /usr/src/app
+# Use the official Maven image as the base image
 
-# 依存だけ先に取ってキャッシュを有効化
-COPY pom.xml ./
+############################################################
+# STEP 1: ビルドステージ
+############################################################
+FROM maven:3.8.8-eclipse-temurin-17 AS builder
+
+# 作業ディレクトリを設定
+WORKDIR /workspace
+
+# pom.xmlを先にコピーして依存解決キャッシュ
+COPY pom.xml .
+
+# 依存だけ先にダウンロード
 RUN mvn dependency:go-offline -B
 
-# ソースをコピーしてパッケージング
+# ソースコードをすべてコピーしてビルド
 COPY src ./src
-RUN mvn clean package -DskipTests -B
+RUN mvn clean package -DskipTests
 
-# 2) Runtime stage
-FROM eclipse-temurin:17-jre
+############################################################
+# STEP 2: ランタイムステージ
+############################################################
+FROM eclipse-temurin:17-jdk-alpine
+
+# アプリケーション用作業ディレクトリ
 WORKDIR /app
 
-# ビルド成果物をコピー
-COPY --from=build /usr/src/app/target/*.jar app.jar
+# 外部設定ファイル（/config/application.properties）を
+# Spring Boot が自動検出できるようにする（docker-composeでマウント）
+VOLUME ["/config"]
 
+# builder から生成済み JAR をコピー
+COPY --from=builder /workspace/target/*.jar app.jar
+
+# コンテナが待ち受けるポート
 EXPOSE 8080
+
+# 実行
 ENTRYPOINT ["java", "-jar", "app.jar"]

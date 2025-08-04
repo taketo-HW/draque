@@ -1,14 +1,8 @@
-version: '3.8'
-
 services:
-  app:
+  demo-app:
     build: .
     ports:
       - "8080:8080"
+    # ホストの config/ をコンテナの /config にマウント
     volumes:
-      - ./src/main/resources/static:/app/static:ro
-    # 必要に応じて環境変数やボリュームを追加
-    # environment:
-    #   - SPRING_PROFILES_ACTIVE=prod
-    # volumes:
-    #   - ./logs:/app/logs
+      - ./config:/config
