@@ -1,5 +1,2 @@
-com\example\demo\DemoApplication.class
-ProbabilityController.class
-com\example\demo\MonsterDto.class
-com\example\demo\EncounterResponse.class
-com\example\demo\EncounterController.class
+com\example\demo\controller\AttackResponse.class
+com\example\demo\controller\HomeController.class

@@ -1,13 +1,18 @@
-package com.example.demo.util;
+package com.example.dockerapi.util;
 
 public class CoordinateUtils {
+
+    // 定数定義
+    private static final int UNIT_DIGIT_DIVISOR = 10;
+    private static final int MISS_THRESHOLD = 4;
+    private static final int CRITICAL_MULTIPLIER = 2;
 
     /**
      * 座標の整数部から「一桁」（1の位）を取り出す
      */
     public static int getUnitDigit(double coord) {
         int integerPart = (int) Math.abs(coord);
-        return integerPart % 10;
+        return integerPart % UNIT_DIGIT_DIVISOR;
     }
 
     /**
@@ -20,12 +25,12 @@ public class CoordinateUtils {
      */
     public static AttackResult evaluateAttack(int baseAttack, int northDigit, int southDigit) {
         if (northDigit == southDigit) {
-            if (northDigit <= 4) {
+            if (northDigit <= MISS_THRESHOLD) {
                 // 一桁が 0～4 で一致→ミス
                 return new AttackResult(0, "ミス：攻撃を回避された");
             } else {
                 // 一桁が 5～9 で一致→会心
-                return new AttackResult(baseAttack * 2, "会心の一撃：攻撃力2倍");
+                return new AttackResult(baseAttack * CRITICAL_MULTIPLIER, "会心の一撃：攻撃力2倍");
             }
         }
         // 一致しなければ通常攻撃

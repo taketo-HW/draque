@@ -220,7 +220,6 @@ const tryToEscape = () => {
     currentMonster = null; // 現在のモンスターをリセット
   } else {
     addLog("逃げられませんでした！");
-    console.log(currentMonster);
     monsterAttack(currentMonster); // モンスターが攻撃
   }
 };
@@ -323,25 +322,14 @@ function initMap() {
         maxZoom: 19,
         timeout: 5000
       });
-      
-      tileLayer.on('load', function() {
-        console.log('タイルレイヤーが正常に読み込まれました:', tileProviders[i]);
-      });
-      
-      tileLayer.on('tileerror', function() {
-        console.log('タイルレイヤーエラー:', tileProviders[i]);
-      });
-      
       tileLayer.addTo(map);
       tileLayerAdded = true;
     } catch (error) {
-      console.log('タイルレイヤーの追加に失敗:', tileProviders[i], error);
     }
   }
 
   // タイルレイヤーが追加されなかった場合のフォールバック
   if (!tileLayerAdded) {
-    console.log('すべてのタイルプロバイダーに失敗しました。シンプルな地図を表示します。');
     // シンプルな背景色で地図エリアを表示
     document.getElementById('map').style.backgroundColor = '#e0e0e0';
     document.getElementById('map').innerHTML = '<div style="text-align: center; padding-top: 50px; color: #666;">地図を読み込めませんでした<br>東京駅周辺の地図</div>';
@@ -388,7 +376,6 @@ function initMap() {
         addLog("現在位置を取得しました。");
       },
       (error) => {
-        console.error("位置情報の取得に失敗しました:", error);
         addLog("位置情報の取得に失敗しました。東京駅を中心とした地図を表示しています。");
         
         // エラーメッセージに応じた説明を追加
