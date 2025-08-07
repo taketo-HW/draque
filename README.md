@@ -64,3 +64,50 @@ http://localhost:8080/
 
 7. テストの実施
 mvn test
+
+## CI/CD パイプライン
+
+このプロジェクトではGitHub Actionsを使用したCI/CDパイプラインが設定されています。
+
+### 自動実行されるワークフロー
+
+1. **CI/CD Pipeline** (`.github/workflows/ci.yml`)
+   - プッシュ・プルリクエスト時に実行
+   - テストの実行
+   - アプリケーションのビルド
+   - Dockerイメージのビルド確認
+   - テストレポートの生成
+
+2. **Code Quality Analysis** (`.github/workflows/code-quality.yml`)
+   - プッシュ・プルリクエスト時に実行
+   - コードカバレッジの計測（Jacoco使用）
+   - Codecovへのカバレッジレポート送信
+
+3. **Security Dependency Check** (`.github/workflows/dependency-check.yml`)
+   - 毎週月曜日に自動実行（またはmainブランチへのプッシュ時）
+   - セキュリティ脆弱性のチェック（OWASP Dependency Check使用）
+
+### ローカルでのテスト実行
+
+```bash
+# すべてのテストを実行
+mvn clean test
+
+# カバレッジレポート付きでテストを実行
+mvn clean test jacoco:report
+
+# パッケージ作成（テストも実行される）
+mvn clean package
+
+# Dockerビルドのテスト
+docker compose build
+```
+
+### バッジの設定
+
+CI/CDの状態を確認するために、以下のバッジをREADMEに追加することを推奨します：
+
+```markdown
+[![CI/CD Pipeline](https://github.com/YuYoshida7211/java-basic/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/YuYoshida7211/java-basic/actions)
+[![codecov](https://codecov.io/gh/YuYoshida7211/java-basic/branch/main/graph/badge.svg)](https://codecov.io/gh/YuYoshida7211/java-basic)
+```

@@ -1,0 +1,43 @@
+name: Security Dependency Check
+
+on:
+  schedule:
+    # 毎週月曜日の午前2時（UTC）に実行
+    - cron: '0 2 * * 1'
+  push:
+    branches: [ main ]
+  workflow_dispatch: # 手動実行可能
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    name: Security & Dependency Check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Run OWASP Dependency Check
+      run: |
+        mvn org.owasp:dependency-check-maven:check
+      continue-on-error: true
+      
+    - name: Upload dependency check results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-check-report
+        path: target/dependency-check-report.html
