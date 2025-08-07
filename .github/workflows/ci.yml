@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, draque ]
+    branches: [ main, develop, draque, CICD_test ]
   pull_request:
-    branches: [ main, develop, draque ]
+    branches: [ main, develop, draque, CICD_test ]
 
 jobs:
   test:
