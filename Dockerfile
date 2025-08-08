@@ -33,8 +33,11 @@ VOLUME ["/config"]
 # builder から生成済み JAR をコピー
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# コンテナが待ち受けるポート
-EXPOSE 8080
+# Railway用のポート設定（環境変数PORTを使用）
+ENV PORT=8080
 
-# 実行
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# コンテナが待ち受けるポート
+EXPOSE $PORT
+
+# Railway用の実行コマンド（PORT環境変数をJavaに渡す）
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=$PORT -jar app.jar"]

@@ -87,6 +87,51 @@ mvn test
    - 毎週月曜日に自動実行（またはmainブランチへのプッシュ時）
    - セキュリティ脆弱性のチェック（OWASP Dependency Check使用）
 
+4. **Railway Deploy** (`.github/workflows/railway-deploy.yml`)
+   - main・developブランチへのプッシュ時に自動デプロイ
+   - Railway プラットフォームへのデプロイ
+
+## Railway デプロイ
+
+このプロジェクトは Railway プラットフォームへの自動デプロイに対応しています。
+
+### Railway デプロイの設定
+
+1. **Railway アカウントの作成**
+   - [Railway](https://railway.app/) にアクセス
+   - GitHub アカウントでログイン
+
+2. **プロジェクトの作成**
+   - Railway ダッシュボードで「New Project」をクリック
+   - 「Deploy from GitHub repo」を選択
+   - このリポジトリを選択
+
+3. **環境変数の設定**
+   Railway ダッシュボードで以下の環境変数を設定：
+   ```
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   ```
+
+4. **GitHub Secrets の設定**
+   リポジトリの Settings → Secrets and variables → Actions で以下を設定：
+   ```
+   RAILWAY_TOKEN=your_railway_token
+   RAILWAY_SERVICE_NAME=your_service_name
+   ```
+
+### Railway トークンの取得
+
+1. Railway ダッシュボードで「Account」→「Tokens」に移動
+2. 「New Token」をクリック
+3. トークン名を入力して「Create Token」をクリック
+4. 生成されたトークンをコピーして GitHub Secrets に設定
+
+### デプロイの確認
+
+- Railway ダッシュボードでデプロイ状況を確認
+- デプロイ完了後、提供される URL でアプリケーションにアクセス可能
+- ログは Railway ダッシュボードの「Deployments」タブで確認
+
 ### ローカルでのテスト実行
 
 ```bash
