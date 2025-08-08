@@ -26,10 +26,6 @@ FROM eclipse-temurin:17-jdk-alpine
 # アプリケーション用作業ディレクトリ
 WORKDIR /app
 
-# 外部設定ファイル（/config/application.properties）を
-# Spring Boot が自動検出できるようにする（docker-composeでマウント）
-VOLUME ["/config"]
-
 # builder から生成済み JAR をコピー
 COPY --from=builder /workspace/target/*.jar app.jar
 
