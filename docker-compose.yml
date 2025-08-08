@@ -1,0 +1,11 @@
+services:
+  demo-app:
+    build: .
+    ports:
+      - "8080:8080"
+    # ホストの config/ をコンテナの /config にマウント
+    volumes:
+      - ./config:/config
+    # 環境変数を設定
+    environment:
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
