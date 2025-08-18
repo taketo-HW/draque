@@ -43,7 +43,7 @@ GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 1. このリポジトリを研修用のフォルダにクローンする
 
 ```
-git clone https://github.com/YuYoshida7211/java-basic.git
+git clone https://github.com/taketo-HW/draque.git
 ```
 
 2. 環境変数を設定する（上記の「環境変数の設定」を参照）
