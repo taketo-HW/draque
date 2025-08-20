@@ -1,0 +1,22 @@
+FROM openjdk:17-jdk-slim
+
+# Mavenのインストール
+RUN apt-get update && apt-get install -y \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+
+# 作業ディレクトリの設定
+WORKDIR /app
+
+# Mavenの設定ファイルをコピー
+COPY pom.xml .
+
+# 依存関係のダウンロード
+RUN mvn dependency:go-offline -B
+
+# ソースコードをコピー
+COPY src ./src
+
+# テスト実行用のエントリーポイント
+ENTRYPOINT ["mvn"]
+CMD ["test"]

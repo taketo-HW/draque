@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # CI/CD用のテスト環境
+  test-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+    volumes:
+      - ./config:/config
+    depends_on:
+      - test-db
+    networks:
+      - ci-network
+
+  # CI/CD用のテストデータベース
+  test-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    networks:
+      - ci-network
+
+  # CI/CD用のRedis（必要に応じて）
+  test-redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - ci-network
+
+  # CI/CD用のテスト実行環境
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+    volumes:
+      - ./src:/app/src
+      - ./target:/app/target
+      - ./pom.xml:/app/pom.xml
+    depends_on:
+      - test-db
+      - test-redis
+    networks:
+      - ci-network
+
+volumes:
+  test-db-data:
+
+networks:
+  ci-network:
+    driver: bridge
