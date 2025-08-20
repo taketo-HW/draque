@@ -26,14 +26,15 @@ FROM eclipse-temurin:17-jdk-alpine
 # アプリケーション用作業ディレクトリ
 WORKDIR /app
 
+# 外部設定ファイル（/config/application.properties）を
+# Spring Boot が自動検出できるようにする（docker-composeでマウント）
+VOLUME ["/config"]
+
 # builder から生成済み JAR をコピー
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# Railway用のポート設定（環境変数PORTを使用）
-ENV PORT=8080
-
 # コンテナが待ち受けるポート
-EXPOSE $PORT
+EXPOSE 8080
 
-# Railway用の実行コマンド（PORT環境変数をJavaに渡す）
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=$PORT -jar app.jar"]
+# 実行
+ENTRYPOINT ["java", "-jar", "app.jar"]
