@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, draque, CICD_test ]
+    branches: [ main, develop, draque, CICD_test, Onion_Architecture]
   pull_request:
-    branches: [ main, develop, draque, CICD_test ]
+    branches: [ main, develop, draque, CICD_test, Onion_Architecture ]
 
 permissions:
   contents: read

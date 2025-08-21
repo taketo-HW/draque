@@ -13,15 +13,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * HomeControllerの統合テスト
+ * HealthControllerの統合テスト
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebMvc
 @TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:testdb",
-    "spring.jpa.hibernate.ddl-auto=create-drop"
+        "spring.datasource.url=jdbc:h2:mem:testdb",
+        "spring.jpa.hibernate.ddl-auto=create-drop"
 })
-@DisplayName("HomeController 統合テスト")
+@DisplayName("HealthController 統合テスト")
 class HomeControllerIntegrationTest {
 
     @Autowired
@@ -35,12 +35,30 @@ class HomeControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("ルートアクセス - index.htmlにフォワードされる")
-    void home_ShouldForwardToIndexHtml() throws Exception {
+    @DisplayName("ヘルスチェック - OKが返される")
+    void health_ShouldReturnOk() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("OK"));
+    }
+
+    @Test
+    @DisplayName("APIルート - 適切なメッセージが返される")
+    void apiRoot_ShouldReturnMessage() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Draque API is running!"));
+    }
+
+    @Test
+    @DisplayName("ルートパス - 適切なメッセージが返される")
+    void rootPath_ShouldReturnMessage() throws Exception {
         // Act & Assert
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/index.html"));
+                .andExpect(content().string("Draque API is running!"));
     }
 
     @Test

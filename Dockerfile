@@ -14,8 +14,10 @@ COPY pom.xml .
 # 依存だけ先にダウンロード
 RUN mvn dependency:go-offline -B
 
-# ソースコードをすべてコピーしてビルド
+# ソースコードをコピー（target/は除外）
 COPY src ./src
+COPY config ./config
+# ビルド実行
 RUN mvn clean package -DskipTests
 
 ############################################################
