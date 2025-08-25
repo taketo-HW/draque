@@ -1,5 +1,11 @@
 package com.example.dockerapi.util;
 
+/**
+ * 座標関連のユーティリティクラス
+ * 
+ * @deprecated このクラスの機能は AttackDomainService に移行されました
+ */
+@Deprecated
 public class CoordinateUtils {
 
     // 定数定義
@@ -9,7 +15,10 @@ public class CoordinateUtils {
 
     /**
      * 座標の整数部から「一桁」（1の位）を取り出す
+     * 
+     * @deprecated AttackDomainService.getUnitDigit を使用してください
      */
+    @Deprecated
     public static int getUnitDigit(double coord) {
         int integerPart = (int) Math.abs(coord);
         return integerPart % UNIT_DIGIT_DIVISOR;
@@ -17,12 +26,15 @@ public class CoordinateUtils {
 
     /**
      * 北緯・南緯の一桁を比較し、ミス/会心/通常を判定する
+     * 
+     * @deprecated AttackDomainService.evaluateAttack を使用してください
      *
      * @param baseAttack ヒーローの基礎攻撃力
      * @param northDigit 北緯の一桁
      * @param southDigit 南緯の一桁
      * @return AttackResult ダメージ値とメッセージ
      */
+    @Deprecated
     public static AttackResult evaluateAttack(int baseAttack, int northDigit, int southDigit) {
         if (northDigit == southDigit) {
             if (northDigit <= MISS_THRESHOLD) {
@@ -37,7 +49,12 @@ public class CoordinateUtils {
         return new AttackResult(baseAttack, "通常攻撃");
     }
 
-    /** 判定結果を保持するクラス */
+    /**
+     * 判定結果を保持するクラス
+     * 
+     * @deprecated com.example.dockerapi.domain.model.AttackResult を使用してください
+     */
+    @Deprecated
     public static class AttackResult {
         private final int damage;
         private final String message;

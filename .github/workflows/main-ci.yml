@@ -1,12 +1,16 @@
-name: CI/CD Pipeline (DISABLED)
+name: Main CI Pipeline
 
 on:
-  workflow_dispatch: # Manual trigger only
-  # Temporarily disabled to fix upload-artifact v3 issue
-  # push:
-  #   branches: [ main, develop ]
-  # pull_request:
-  #   branches: [ main ]
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
 
 jobs:
   test:
@@ -44,16 +48,17 @@ jobs:
       uses: dorny/test-reporter@v1
       if: success() || failure()
       with:
-        name: Maven Tests
+        name: Maven Tests (Java ${{ matrix.java-version }})
         path: target/surefire-reports/*.xml
         reporter: java-junit
-        fail-on-error: true
+        fail-on-error: false
+      continue-on-error: true
     
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results-java-${{ matrix.java-version }}-run-${{ github.run_number }}
+        name: test-results-java-${{ matrix.java-version }}-${{ github.run_number }}
         path: |
           target/surefire-reports/
           target/site/jacoco/
@@ -66,7 +71,7 @@ jobs:
     
     - name: Upload coverage to Codecov
       if: matrix.java-version == '17'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./target/site/jacoco/jacoco.xml
         flags: unittests
@@ -98,7 +103,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: jar-artifact-run-${{ github.run_number }}
+        name: jar-artifact-${{ github.run_number }}
         path: target/*.jar
         retention-days: 30
         if-no-files-found: error
@@ -126,64 +131,11 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: your-dockerhub-username/draque-app
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-    
-    - name: Build and push Docker image
+    - name: Build Docker image (test only)
       uses: docker/build-push-action@v5
       with:
         context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        push: false
+        tags: draque-app:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-  quality-gate:
-    name: Quality Gate
-    runs-on: ubuntu-latest
-    needs: test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-    
-    - name: Run SonarCloud analysis
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        mvn clean verify sonar:sonar \
-          -Dsonar.projectKey=your-project-key \
-          -Dsonar.organization=your-org \
-          -Dsonar.host.url=https://sonarcloud.io

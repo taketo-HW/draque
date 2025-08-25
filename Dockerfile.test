@@ -1,0 +1,21 @@
+# テスト実行専用のDockerfile
+FROM maven:3.8.8-eclipse-temurin-17
+
+# 作業ディレクトリを設定
+WORKDIR /workspace
+
+# pom.xmlを先にコピーして依存解決キャッシュ
+COPY pom.xml .
+
+# 依存だけ先にダウンロード
+RUN mvn dependency:go-offline -B
+
+# ソースコードをすべてコピー
+COPY src ./src
+
+# テスト実行用のスクリプトを作成
+COPY scripts/test-runner.sh /usr/local/bin/test-runner.sh
+RUN chmod +x /usr/local/bin/test-runner.sh
+
+# デフォルトコマンドをテスト実行に設定
+CMD ["test-runner.sh"]
