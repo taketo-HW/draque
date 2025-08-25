@@ -1,7 +1,21 @@
-version: '3.8'
-
 services:
-  app:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - MAVEN_OPTS=-Xmx1024m
+      - SPRING_PROFILES_ACTIVE=test
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+    volumes:
+      - ./target:/workspace/target
+      - ~/.m2:/root/.m2
+    working_dir: /workspace
+    command: mvn clean test -B -V
+
+  app-test:
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,40 +27,5 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
       - SPRING_H2_CONSOLE_ENABLED=true
-    depends_on:
-      - test-db
     volumes:
       - ./target/surefire-reports:/app/test-reports
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  test-db:
-    image: h2:latest
-    environment:
-      - H2_OPTIONS=-ifNotExists
-    ports:
-      - "9092:9092"
-    volumes:
-      - test-db-data:/opt/h2-data
-    command: -tcp -tcpAllowOthers -tcpPort 9092
-
-  test-runner:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    environment:
-      - MAVEN_OPTS=-Xmx1024m
-      - SPRING_PROFILES_ACTIVE=test
-    volumes:
-      - ./target:/workspace/target
-      - ~/.m2:/root/.m2
-    command: mvn clean test -B -V
-    depends_on:
-      - test-db
-
-volumes:
-  test-db-data:
