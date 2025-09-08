@@ -1,19 +1,23 @@
-package com.example.dockerapi.service;
+package com.example.dockerapi.application.service;
 
-import com.example.dockerapi.entity.User;
-import com.example.dockerapi.repository.UserRepository;
+import com.example.dockerapi.domain.model.User;
+import com.example.dockerapi.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@Transactional
-public class UserService {
+/**
+ * Application層のUserService
+ * Repository層のみに依存し、ビジネスロジックを調整
+ */
+// @Service
+// @Transactional
+public class UserApplicationService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserApplicationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

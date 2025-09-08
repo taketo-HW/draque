@@ -1,7 +1,7 @@
-package com.example.dockerapi.service;
+package com.example.dockerapi.application.service;
 
-import com.example.dockerapi.entity.User;
-import com.example.dockerapi.repository.UserRepository;
+import com.example.dockerapi.domain.model.User;
+import com.example.dockerapi.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,16 +14,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 
 /**
- * UserServiceのテスト
+ * UserApplicationServiceのテスト
  */
-@DisplayName("UserService テスト")
-class UserServiceTest {
+@DisplayName("UserApplicationService テスト")
+class UserApplicationServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserApplicationService userApplicationService;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +42,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         // Act
-        User result = userService.createUser(user);
+        User result = userApplicationService.createUser(user);
 
         // Assert
         assertNotNull(result);
@@ -54,7 +54,7 @@ class UserServiceTest {
     @DisplayName("createUser - nullユーザーでIllegalArgumentException")
     void createUser_WithNullUser_ThrowsException() {
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+        assertThrows(IllegalArgumentException.class, () -> userApplicationService.createUser(null));
     }
 
     @Test
@@ -64,7 +64,7 @@ class UserServiceTest {
         User user = new User("");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(user));
+        assertThrows(IllegalArgumentException.class, () -> userApplicationService.createUser(user));
     }
 
     @Test
@@ -77,7 +77,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         // Act
-        Optional<User> result = userService.getUserById(userId);
+        Optional<User> result = userApplicationService.getUserById(userId);
 
         // Assert
         assertTrue(result.isPresent());
@@ -93,7 +93,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act
-        Optional<User> result = userService.getUserById(userId);
+        Optional<User> result = userApplicationService.getUserById(userId);
 
         // Assert
         assertFalse(result.isPresent());
@@ -104,7 +104,7 @@ class UserServiceTest {
     @DisplayName("getUserById - nullのIDでIllegalArgumentException")
     void getUserById_WithNullId_ThrowsException() {
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.getUserById(null));
+        assertThrows(IllegalArgumentException.class, () -> userApplicationService.getUserById(null));
     }
 
     @Test
@@ -112,20 +112,13 @@ class UserServiceTest {
     void updateUser_ShouldUpdateUserSuccessfully() {
         // Arrange
         User user = new User("更新されたユーザー");
-        // リフレクションでIDを設定（通常はJPAが設定）
-        try {
-            var idField = User.class.getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(user, 1L);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        user.setId(1L);
 
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         // Act
-        User result = userService.updateUser(user);
+        User result = userApplicationService.updateUser(user);
 
         // Assert
         assertNotNull(result);
@@ -143,7 +136,7 @@ class UserServiceTest {
         doNothing().when(userRepository).deleteById(userId);
 
         // Act
-        userService.deleteUser(userId);
+        userApplicationService.deleteUser(userId);
 
         // Assert
         verify(userRepository, times(1)).existsById(userId);

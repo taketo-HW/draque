@@ -1,50 +1,55 @@
-package com.example.dockerapi.domain.service;
+package com.example.dockerapi.infrastructure.repository;
 
 import com.example.dockerapi.domain.model.Monster;
-import org.springframework.stereotype.Service;
+import com.example.dockerapi.domain.repository.MonsterRepository;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Service
-public class EncounterDomainService {
+/**
+ * Infrastructure層のMonsterRepository実装
+ * Domain層のインターフェースを実装し、モンスターデータを管理
+ */
+@Repository
+@Lazy
+public class MonsterRepositoryImpl implements MonsterRepository {
+    private static final List<Monster> AVAILABLE_MONSTERS = Arrays.asList(
+            new Monster("スライム", 20, 10, 10, "/image/Slime.webp", 0.65),
+            new Monster("ドラゴン", 40, 20, 15, "/image/dragon.webp", 0.25),
+            new Monster("メタルスライム", 20, 10, 30, "/image/Metal_slime.webp", 0.10));
+
     private static final double DEFAULT_APPEARANCE_RATE = 0.4;
     private final Random random;
 
-    public EncounterDomainService() {
+    public MonsterRepositoryImpl() {
         this.random = new Random();
     }
 
     // テスト用コンストラクタ
-    public EncounterDomainService(Random random) {
+    public MonsterRepositoryImpl(Random random) {
         this.random = random;
     }
 
-    /**
-     * モンスターエンカウンターを実行する
-     * 
-     * @param monsters       出現可能なモンスターのリスト
-     * @param appearanceRate 全体の出現率
-     * @return 出現したモンスター（出現しない場合はOptional.empty()）
-     */
-    public Optional<Monster> executeEncounter(List<Monster> monsters, double appearanceRate) {
+    @Override
+    public List<Monster> findAll() {
+        return AVAILABLE_MONSTERS;
+    }
+
+    @Override
+    public Optional<Monster> executeEncounter(List<Monster> monsters) {
         if (monsters == null || monsters.isEmpty()) {
             return Optional.empty();
         }
 
-        if (random.nextDouble() >= appearanceRate) {
+        if (random.nextDouble() >= DEFAULT_APPEARANCE_RATE) {
             return Optional.empty();
         }
 
         return selectMonsterByProbability(monsters);
-    }
-
-    /**
-     * デフォルトの出現率でエンカウンターを実行する
-     */
-    public Optional<Monster> executeEncounter(List<Monster> monsters) {
-        return executeEncounter(monsters, DEFAULT_APPEARANCE_RATE);
     }
 
     /**

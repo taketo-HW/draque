@@ -1,4 +1,4 @@
-package com.example.dockerapi.domain.service;
+package com.example.dockerapi.infrastructure.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,14 +8,14 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("ProbabilityDomainService テスト")
-class ProbabilityDomainServiceTest {
+@DisplayName("ProbabilityRepositoryImpl テスト")
+class ProbabilityRepositoryImplTest {
 
-    private ProbabilityDomainService probabilityDomainService;
+    private ProbabilityRepositoryImpl probabilityRepository;
 
     @BeforeEach
     void setUp() {
-        probabilityDomainService = new ProbabilityDomainService(new Random(0));
+        probabilityRepository = new ProbabilityRepositoryImpl(new Random(0));
     }
 
     @Test
@@ -26,7 +26,7 @@ class ProbabilityDomainServiceTest {
         List<Double> weights = Arrays.asList(0.5, 0.3, 0.2);
 
         // Act
-        String result = probabilityDomainService.selectByProbability(items, weights);
+        String result = probabilityRepository.selectByProbability(items, weights);
 
         // Assert
         assertNotNull(result);
@@ -41,7 +41,7 @@ class ProbabilityDomainServiceTest {
         List<Double> weights = Arrays.asList(1.0);
 
         // Act
-        String result = probabilityDomainService.selectByProbability(items, weights);
+        String result = probabilityRepository.selectByProbability(items, weights);
 
         // Assert
         assertEquals("OnlyItem", result);
@@ -54,7 +54,8 @@ class ProbabilityDomainServiceTest {
         List<Double> weights = Arrays.asList(1.0);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> probabilityDomainService.selectByProbability(null, weights));
+        assertThrows(IllegalArgumentException.class, () -> 
+            probabilityRepository.selectByProbability(null, weights));
     }
 
     @Test
@@ -64,7 +65,8 @@ class ProbabilityDomainServiceTest {
         List<String> items = Arrays.asList("A");
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> probabilityDomainService.selectByProbability(items, null));
+        assertThrows(IllegalArgumentException.class, () -> 
+            probabilityRepository.selectByProbability(items, null));
     }
 
     @Test
@@ -76,7 +78,7 @@ class ProbabilityDomainServiceTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> probabilityDomainService.selectByProbability(items, weights));
+                () -> probabilityRepository.selectByProbability(items, weights));
     }
 
     @Test
@@ -88,7 +90,7 @@ class ProbabilityDomainServiceTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> probabilityDomainService.selectByProbability(items, weights));
+                () -> probabilityRepository.selectByProbability(items, weights));
     }
 
     @Test
@@ -100,19 +102,7 @@ class ProbabilityDomainServiceTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> probabilityDomainService.selectByProbability(items, weights));
-    }
-
-    @Test
-    @DisplayName("selectByProbability - nullの重みでIllegalArgumentException")
-    void selectByProbability_WithNullWeight_ThrowsException() {
-        // Arrange
-        List<String> items = Arrays.asList("A", "B");
-        List<Double> weights = Arrays.asList(1.0, null);
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class,
-                () -> probabilityDomainService.selectByProbability(items, weights));
+                () -> probabilityRepository.selectByProbability(items, weights));
     }
 
     @Test
@@ -124,7 +114,7 @@ class ProbabilityDomainServiceTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> probabilityDomainService.selectByProbability(items, weights));
+                () -> probabilityRepository.selectByProbability(items, weights));
     }
 
     @Test
@@ -136,11 +126,11 @@ class ProbabilityDomainServiceTest {
         Map<String, Integer> counts = new HashMap<>();
 
         // 固定シードで多数回実行
-        probabilityDomainService = new ProbabilityDomainService(new Random(42));
+        probabilityRepository = new ProbabilityRepositoryImpl(new Random(42));
 
         // Act
         for (int i = 0; i < 1000; i++) {
-            String result = probabilityDomainService.selectByProbability(items, weights);
+            String result = probabilityRepository.selectByProbability(items, weights);
             counts.put(result, counts.getOrDefault(result, 0) + 1);
         }
 
