@@ -34,13 +34,13 @@ jobs:
       run: mvn clean test jacoco:report
       
     - name: Generate coverage reports for Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./target/site/jacoco/jacoco.xml
         fail_ci_if_error: false
         
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       if: always()
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

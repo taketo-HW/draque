@@ -1,25 +1,14 @@
-package com.example.dockerapi.entity;
+package com.example.dockerapi.domain.model;
 
-import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
-
-@Entity
-@Table(name = "users")
+/**
+ * Domain層のUserエンティティ
+ * Infrastructure層のJPAエンティティとは分離
+ */
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, length = 100)
     private String name;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
 
     public User() {
     }
@@ -28,15 +17,11 @@ public class User {
         this.name = name;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public User(Long id, String name, java.time.LocalDateTime createdAt, java.time.LocalDateTime updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -55,19 +40,19 @@ public class User {
         this.name = name;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public java.time.LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public java.time.LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -78,12 +63,12 @@ public class User {
         if (o == null || getClass() != o.getClass())
             return false;
         User user = (User) o;
-        return Objects.equals(id, user.id);
+        return java.util.Objects.equals(id, user.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return java.util.Objects.hash(id);
     }
 
     @Override
