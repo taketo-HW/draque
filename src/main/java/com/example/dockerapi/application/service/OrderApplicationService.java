@@ -1,4 +1,4 @@
-package com.example.dockerapi.service;
+package com.example.dockerapi.application.service;
 
 import com.example.dockerapi.entity.Order;
 import com.example.dockerapi.repository.OrderRepository;
@@ -8,12 +8,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Application層のOrderService
+ * Repository層のみに依存し、ビジネスロジックを調整
+ */
 @Service
 @Transactional
-public class OrderService {
+public class OrderApplicationService {
     private final OrderRepository orderRepository;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderApplicationService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
