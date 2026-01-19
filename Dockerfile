@@ -34,7 +34,7 @@ VOLUME ["/config"]
 COPY --from=builder /workspace/target/*.jar app.jar
 
 # コンテナが待ち受けるポート
-EXPOSE 8080
+EXPOSE 8080 5005
 
-# 実行
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# 実行（デバッグモード）
+ENTRYPOINT ["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-jar", "app.jar"]
