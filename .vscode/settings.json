@@ -1,6 +1,10 @@
 {
-  "java.project.sourcePaths": [
-    "src/main/java"
-  ],
-  "java.compile.nullAnalysis.mode": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "maven.executable.path": "mvn",
+    "java.test.config": {
+        "workingDirectory": "${workspaceFolder}"
+    },
+    "java.configuration.runtimes": [],
+    "java.errors.incompleteClasspath.severity": "ignore"
 }

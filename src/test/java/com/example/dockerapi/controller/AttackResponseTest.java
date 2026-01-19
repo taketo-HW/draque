@@ -1,5 +1,6 @@
 package com.example.dockerapi.controller;
 
+import com.example.dockerapi.dto.AttackResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +16,7 @@ class AttackResponseTest {
     void defaultConstructor_CreatesEmptyObject() {
         // Act
         AttackResponse response = new AttackResponse();
-        
+
         // Assert
         assertEquals(0, response.getNorthDigit());
         assertEquals(0, response.getSouthDigit());
@@ -31,10 +32,10 @@ class AttackResponseTest {
         int southDigit = 7;
         int damage = 100;
         String message = "通常攻撃";
-        
+
         // Act
         AttackResponse response = new AttackResponse(northDigit, southDigit, damage, message);
-        
+
         // Assert
         assertEquals(northDigit, response.getNorthDigit());
         assertEquals(southDigit, response.getSouthDigit());
@@ -51,13 +52,13 @@ class AttackResponseTest {
         int southDigit = 9;
         int damage = 200;
         String message = "会心の一撃";
-        
+
         // Act
         response.setNorthDigit(northDigit);
         response.setSouthDigit(southDigit);
         response.setDamage(damage);
         response.setMessage(message);
-        
+
         // Assert
         assertEquals(northDigit, response.getNorthDigit());
         assertEquals(southDigit, response.getSouthDigit());
@@ -74,17 +75,17 @@ class AttackResponseTest {
         int southDigit = -5;
         int damage = -50;
         String message = "ミス";
-        
+
         // Act
         response.setNorthDigit(northDigit);
         response.setSouthDigit(southDigit);
         response.setDamage(damage);
         response.setMessage(message);
-        
+
         // Assert
         assertEquals(northDigit, response.getNorthDigit());
         assertEquals(southDigit, response.getSouthDigit());
         assertEquals(damage, response.getDamage());
         assertEquals(message, response.getMessage());
     }
-} 
+}

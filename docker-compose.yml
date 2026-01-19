@@ -3,6 +3,7 @@ services:
     build: .
     ports:
       - "8080:8080"
+      - "5005:5005"  # デバッグポート
     # ホストの config/ をコンテナの /config にマウント
     volumes:
       - ./config:/config
